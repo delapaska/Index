@@ -12,47 +12,70 @@ const (
 )
 
 func SlidingWindow(s, substr string) int {
+
 	i, j := 0, 0
+	ans1, ans2 := 0, 0
+	var str rune
+	var str_size int
 	for i < len(s) && j < len(substr) {
-		if s[i] == substr[j] {
-			i++
-			j++
+		str, str_size = utf8.DecodeRuneInString(s[i:])
+		subst, substr_size := utf8.DecodeRuneInString(substr[j:])
+		if str == subst && str_size == substr_size {
+			i += str_size
+			j += substr_size
+			ans1++
+			ans2++
+
 		} else {
-			i = i - j + 1
+			ans1 = ans1 - ans2 + 1
+			ans2 = 0
+			i = i - j + str_size
 			j = 0
 		}
 	}
 	if j == len(substr) {
-		return utf8.RuneCountInString(s[:i-j])
+
+		return ans1 - ans2
+
 	}
 	return -1
 }
 
 func IndexRabinKarp(s, substr string) int {
-	runes := []rune(s)
+
+	ln := utf8.RuneCountInString(s)
+
 	subRunes := []rune(substr)
 	hash1, pow1, hash2, pow2 := HashRunesDouble(subRunes)
 
 	n := len(subRunes)
 	var h1, h2 uint32
+	var a rune
 
-	for i := 0; i < n; i++ {
-		h1 = h1*PrimeRK1 + uint32(runes[i])
-		h2 = h2*PrimeRK2 + uint32(runes[i])
-	}
+	var size int
+	k := 0
+	var ans []rune
 
-	if h1 == hash1 && h2 == hash2 && string(runes[:n]) == substr {
-		return 0
-	}
+	for i := 0; i < ln; {
+		a, size = utf8.DecodeRuneInString(s[k:])
+		if i < n {
+			h1 = h1*PrimeRK1 + uint32(a)
+			h2 = h2*PrimeRK2 + uint32(a)
+			ans = append(ans, a)
+		} else {
+			h1 *= PrimeRK1
+			h2 *= PrimeRK2
 
-	for i := n; i < len(runes); {
-		h1 *= PrimeRK1
-		h2 *= PrimeRK2
-		h1 += uint32(runes[i]) - pow1*uint32(runes[i-n])
-		h2 += uint32(runes[i]) - pow2*uint32(runes[i-n])
+			h1 += uint32(a) - pow1*uint32(ans[0])
+			h2 += uint32(a) - pow2*uint32(ans[0])
+
+			ans = append(ans[:0], ans[1:]...)
+			ans = append(ans, a)
+		}
 		i++
+		k += size
 
-		if h1 == hash1 && h2 == hash2 && string(runes[i-n:i]) == substr {
+		if h1 == hash1 && h2 == hash2 && string(ans) == substr {
 			return i - n
 		}
 	}
