@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 	"unicode/utf8"
 )
@@ -43,8 +44,6 @@ func SlidingWindow(s, substr string) int {
 
 func IndexRabinKarp(s, substr string) int {
 
-	ln := utf8.RuneCountInString(s)
-
 	subRunes := []rune(substr)
 	hash1, pow1, hash2, pow2 := HashRunesDouble(subRunes)
 
@@ -56,7 +55,7 @@ func IndexRabinKarp(s, substr string) int {
 	k := 0
 	var ans []rune
 
-	for i := 0; i < ln; {
+	for i := 0; i < len(s); {
 		a, size = utf8.DecodeRuneInString(s[k:])
 		if i < n {
 			h1 = h1*PrimeRK1 + uint32(a)
@@ -65,7 +64,6 @@ func IndexRabinKarp(s, substr string) int {
 		} else {
 			h1 *= PrimeRK1
 			h2 *= PrimeRK2
-
 			h1 += uint32(a) - pow1*uint32(ans[0])
 			h2 += uint32(a) - pow2*uint32(ans[0])
 
@@ -76,6 +74,7 @@ func IndexRabinKarp(s, substr string) int {
 		k += size
 
 		if h1 == hash1 && h2 == hash2 && string(ans) == substr {
+
 			return i - n
 		}
 	}
