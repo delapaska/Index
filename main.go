@@ -54,9 +54,10 @@ func IndexRabinKarp(s, substr string) int {
 	var size int
 	k := 0
 	var ans []rune
-
-	for i := 0; i < len(s); {
+	i := 0
+	for k < len(s) {
 		a, size = utf8.DecodeRuneInString(s[k:])
+		fmt.Println(string(a))
 		if i < n {
 			h1 = h1*PrimeRK1 + uint32(a)
 			h2 = h2*PrimeRK2 + uint32(a)
